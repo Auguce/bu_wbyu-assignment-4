@@ -12,17 +12,31 @@ nltk.download('stopwords')
 app = Flask(__name__)
 
 
-# TODO: Fetch dataset, initialize vectorizer and LSA here
+# 加载数据集并初始化向量化器和LSA模型
+newsgroups = fetch_20newsgroups(subset='all')
+vectorizer = TfidfVectorizer(max_df=0.95, min_df=2, stop_words='english')
+X = vectorizer.fit_transform(newsgroups.data)
+
+# 使用SVD进行降维
+svd_model = TruncatedSVD(n_components=100)
+lsa_matrix = svd_model.fit_transform(X)
 
 
 def search_engine(query):
-    """
-    Function to search for top 5 similar documents given a query
-    Input: query (str)
-    Output: documents (list), similarities (list), indices (list)
-    """
-    # TODO: Implement search engine here
-    # return documents, similarities, indices 
+    # 处理用户查询
+    query_vector = vectorizer.transform([query])
+    query_lsa = svd_model.transform(query_vector)
+
+    # 计算查询和文档的余弦相似度
+    similarities = cosine_similarity(query_lsa, lsa_matrix)[0]
+
+    # 获取前5个最相似的文档
+    top_indices = similarities.argsort()[-5:][::-1]
+    top_documents = [newsgroups.data[i] for i in top_indices]
+    top_similarities = [similarities[i] for i in top_indices]
+
+    return top_documents, top_similarities, top_indices.tolist()  # 转换 indices 为列表
+
 
 @app.route('/')
 def index():

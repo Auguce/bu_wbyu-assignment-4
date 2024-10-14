@@ -32,11 +32,35 @@ function displayResults(data) {
     }
 }
 
+let chartInstance = null;  // 用来存储图表实例
+
 function displayChart(data) {
-    // Input: data (object) - contains the following keys:
-    //        - documents (list) - list of documents
-    //        - indices (list) - list of indices   
-    //        - similarities (list) - list of similarities
-    // TODO: Implement function to display chart here
-    //       There is a canvas element in the HTML file with the id 'similarity-chart'
+    let ctx = document.getElementById('similarity-chart').getContext('2d');
+
+    // 如果已有图表实例，则销毁它
+    if (chartInstance) {
+        chartInstance.destroy();
+    }
+
+    // 创建新图表
+    chartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.indices.map(i => 'Document ' + i),
+            datasets: [{
+                label: 'Cosine Similarity',
+                data: data.similarities,
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
 }
