@@ -31,7 +31,7 @@ jobs:
       run: |
         . venv/bin/activate
         make run &
-        sleep 10  # 确保 Flask 应用程序有时间启动
+        sleep 20  # 确保 Flask 应用程序有时间启动
 
     - name: Verify Application
       run: |
